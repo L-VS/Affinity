@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Affinity — Compagnon système Ubuntu</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:         #0A0E1A;
+    --bg-card:    #0F1629;
+    --bg-hover:   #141D38;
+    --border:     rgba(255,255,255,0.06);
+    --border-lit: rgba(0,210,210,0.25);
+    --text:       #E8EDF7;
+    --text-dim:   #6B7A99;
+    --text-mid:   #A0AECF;
+    --cyan:       #00D2D2;
+    --cyan-soft:  rgba(0,210,210,0.12);
+    --green:      #00E5A0;
+    --green-soft: rgba(0,229,160,0.12);
+    --orange:     #FF8C42;
+    --orange-soft:rgba(255,140,66,0.12);
+    --red:        #FF4F6A;
+    --red-soft:   rgba(255,79,106,0.12);
+    --sidebar-w:  220px;
+    --radius:     16px;
+    --radius-sm:  10px;
+  }
+
+  html, body {
+    height: 100%; background: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text); font-size: 14px;
+    overflow: hidden;
+  }
+
+  /* ─── LAYOUT ─── */
+  .app {
+    display: grid;
+    grid-template-columns: var(--sidebar-w) 1fr;
+    grid-template-rows: 100vh;
+    height: 100vh;
+  }
+
+  /* ─── SIDEBAR ─── */
+  .sidebar {
+    background: #080C18;
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    padding: 20px 0;
+    position: relative; overflow: hidden;
+  }
+  .sidebar::after {
+    content: '';
+    position: absolute; bottom: 0; left: 0; right: 0; height: 200px;
+    background: linear-gradient(to top, rgba(0,210,210,0.04), transparent);
+    pointer-events: none;
+  }
+
+  .logo {
+    padding: 0 20px 24px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .logo-icon {
+    width: 34px; height: 34px;
+    background: linear-gradient(135deg, #00D2D2, #0066FF);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+    box-shadow: 0 0 20px rgba(0,210,210,0.3);
+  }
+  .logo-text { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 17px; letter-spacing: -0.3px; }
+  .logo-user { font-size: 11px; color: var(--text-dim); margin-top: 1px; }
+
+  .nav-section { padding: 0 12px; margin-bottom: 6px; }
+  .nav-label {
+    font-size: 10px; font-weight: 600; letter-spacing: 1.2px;
+    text-transform: uppercase; color: var(--text-dim);
+    padding: 0 8px; margin-bottom: 6px; margin-top: 16px;
+  }
+
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px; border-radius: 10px;
+    cursor: pointer; transition: all 0.15s ease;
+    color: var(--text-dim); font-size: 13.5px; font-weight: 500;
+    position: relative; margin-bottom: 2px;
+    user-select: none;
+  }
+  .nav-item:hover { background: var(--bg-hover); color: var(--text); }
+  .nav-item.active {
+    background: var(--cyan-soft);
+    color: var(--cyan);
+    box-shadow: inset 0 0 0 1px rgba(0,210,210,0.15);
+  }
+  .nav-item.active::before {
+    content: '';
+    position: absolute; left: 0; top: 6px; bottom: 6px;
+    width: 3px; background: var(--cyan);
+    border-radius: 0 3px 3px 0; left: -12px;
+  }
+  .nav-icon { width: 18px; text-align: center; font-size: 15px; }
+  .nav-badge {
+    margin-left: auto; background: var(--red);
+    color: #fff; font-size: 10px; font-weight: 700;
+    padding: 2px 6px; border-radius: 20px; min-width: 18px; text-align: center;
+  }
+  .nav-badge.cyan { background: var(--cyan-soft); color: var(--cyan); border: 1px solid rgba(0,210,210,0.3); }
+
+  .sidebar-footer {
+    margin-top: auto; padding: 16px 20px 0;
+    border-top: 1px solid var(--border);
+  }
+  .status-dot {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; color: var(--text-dim);
+  }
+  .pulse {
+    width: 7px; height: 7px; border-radius: 50%; background: var(--green);
+    box-shadow: 0 0 0 2px rgba(0,229,160,0.2);
+    animation: pulse 2s ease infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 2px rgba(0,229,160,0.2); }
+    50% { box-shadow: 0 0 0 5px rgba(0,229,160,0.0); }
+  }
+
+  /* ─── MAIN ─── */
+  .main {
+    display: flex; flex-direction: column;
+    overflow: hidden; position: relative;
+  }
+
+  /* titlebar */
+  .titlebar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 28px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(10,14,26,0.7);
+    backdrop-filter: blur(10px);
+    flex-shrink: 0;
+  }
+  .titlebar-left { display: flex; flex-direction: column; gap: 1px; }
+  .titlebar-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 18px; letter-spacing: -0.3px; }
+  .titlebar-sub { font-size: 12px; color: var(--text-dim); }
+  .titlebar-right { display: flex; align-items: center; gap: 8px; }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 14px; border-radius: 8px; border: none;
+    font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: all 0.15s ease; text-decoration: none;
+  }
+  .btn-ghost { background: transparent; color: var(--text-dim); }
+  .btn-ghost:hover { background: var(--bg-hover); color: var(--text); }
+  .btn-primary {
+    background: var(--cyan); color: #001F2E;
+    box-shadow: 0 0 20px rgba(0,210,210,0.3);
+  }
+  .btn-primary:hover { box-shadow: 0 0 30px rgba(0,210,210,0.45); transform: translateY(-1px); }
+
+  /* content scroll */
+  .content {
+    flex: 1; overflow-y: auto; padding: 24px 28px;
+    scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.08) transparent;
+  }
+  .content::-webkit-scrollbar { width: 4px; }
+  .content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+
+  /* ─── ALERT BANNER ─── */
+  .alert-banner {
+    background: linear-gradient(90deg, rgba(255,140,66,0.12), rgba(255,140,66,0.06));
+    border: 1px solid rgba(255,140,66,0.25);
+    border-radius: 10px;
+    padding: 10px 14px;
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 22px; font-size: 13px;
+    animation: slideIn 0.3s ease;
+  }
+  @keyframes slideIn { from { opacity:0; transform:translateY(-8px); } }
+  .alert-icon { font-size: 16px; flex-shrink: 0; }
+  .alert-text { flex: 1; color: var(--text); }
+  .alert-text b { color: var(--orange); }
+  .alert-close { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 16px; padding: 0 4px; }
+  .alert-action {
+    background: rgba(255,140,66,0.15); border: 1px solid rgba(255,140,66,0.3);
+    color: var(--orange); padding: 5px 12px; border-radius: 6px;
+    cursor: pointer; font-size: 12px; font-weight: 600; white-space: nowrap;
+    transition: all 0.15s;
+  }
+  .alert-action:hover { background: rgba(255,140,66,0.25); }
+
+  /* ─── SECTION HEADER ─── */
+  .section-header {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .section-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; color: var(--text-mid); letter-spacing: 0.2px; }
+  .section-link { font-size: 12px; color: var(--cyan); cursor: pointer; opacity: 0.8; }
+  .section-link:hover { opacity: 1; }
+
+  /* ─── METRIC CARDS ─── */
+  .metrics-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 14px; margin-bottom: 22px;
+  }
+  .metric-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 18px;
+    cursor: pointer; transition: all 0.2s ease;
+    position: relative; overflow: hidden;
+  }
+  .metric-card:hover {
+    border-color: var(--border-lit);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3), 0 0 0 1px rgba(0,210,210,0.1);
+  }
+  .metric-card::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+  }
+  .metric-card.green::before { background: linear-gradient(90deg, var(--green), transparent); }
+  .metric-card.cyan::before  { background: linear-gradient(90deg, var(--cyan), transparent); }
+  .metric-card.orange::before{ background: linear-gradient(90deg, var(--orange), transparent); }
+  .metric-card.blue::before  { background: linear-gradient(90deg, #4DA6FF, transparent); }
+
+  .metric-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .metric-label { font-size: 11px; font-weight: 600; letter-spacing: 0.6px; text-transform: uppercase; color: var(--text-dim); }
+  .metric-icon { font-size: 16px; opacity: 0.6; }
+
+  .metric-value { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; letter-spacing: -1px; line-height: 1; margin-bottom: 6px; }
+  .metric-card.green .metric-value { color: var(--green); }
+  .metric-card.cyan .metric-value  { color: var(--cyan); }
+  .metric-card.orange .metric-value { color: var(--orange); }
+  .metric-card.blue .metric-value  { color: #4DA6FF; }
+
+  .metric-sub { font-size: 12px; color: var(--text-dim); margin-bottom: 12px; }
+  .metric-sub b { color: var(--text-mid); font-weight: 500; }
+
+  .metric-bar { height: 3px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
+  .metric-fill { height: 100%; border-radius: 3px; transition: width 1s ease; }
+  .green .metric-fill  { background: var(--green); }
+  .cyan .metric-fill   { background: var(--cyan); }
+  .orange .metric-fill { background: var(--orange); }
+  .blue .metric-fill   { background: #4DA6FF; }
+
+  .metric-hover-btn {
+    position: absolute; bottom: 12px; right: 12px;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+    color: var(--text-dim); padding: 4px 8px; border-radius: 6px;
+    font-size: 11px; cursor: pointer; opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .metric-card:hover .metric-hover-btn { opacity: 1; }
+
+  /* sparkline fake */
+  .sparkline { width: 100%; height: 28px; margin-bottom: 6px; opacity: 0.6; }
+
+  /* ─── BOTTOM GRID ─── */
+  .bottom-grid {
+    display: grid; grid-template-columns: 1fr 280px;
+    gap: 14px;
+  }
+
+  /* ─── ACTIVITY ─── */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 18px;
+  }
+  .card-title {
+    font-family: 'Syne', sans-serif; font-weight: 700;
+    font-size: 13px; color: var(--text-mid);
+    text-transform: uppercase; letter-spacing: 0.4px;
+    margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+  }
+
+  .activity-list { display: flex; flex-direction: column; gap: 2px; }
+  .activity-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 10px; border-radius: 8px;
+    transition: background 0.15s;
+    cursor: pointer;
+  }
+  .activity-item:hover { background: var(--bg-hover); }
+  .activity-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .activity-dot.green  { background: var(--green); box-shadow: 0 0 6px rgba(0,229,160,0.5); }
+  .activity-dot.cyan   { background: var(--cyan); box-shadow: 0 0 6px rgba(0,210,210,0.5); }
+  .activity-dot.orange { background: var(--orange); box-shadow: 0 0 6px rgba(255,140,66,0.5); }
+  .activity-dot.blue   { background: #4DA6FF; }
+  .activity-desc { flex: 1; font-size: 13px; color: var(--text-mid); }
+  .activity-desc b { color: var(--text); font-weight: 500; }
+  .activity-time { font-size: 11px; color: var(--text-dim); font-family: 'DM Mono', monospace; }
+
+  /* ─── QUICK ACTIONS ─── */
+  .quick-actions { display: flex; flex-direction: column; gap: 8px; }
+  .qa-btn {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px; border-radius: 10px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    cursor: pointer; transition: all 0.15s ease;
+    text-align: left;
+  }
+  .qa-btn:hover { background: var(--bg-hover); border-color: var(--border-lit); transform: translateX(2px); }
+  .qa-icon { font-size: 20px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 8px; flex-shrink: 0; }
+  .qa-icon.green  { background: var(--green-soft); }
+  .qa-icon.cyan   { background: var(--cyan-soft); }
+  .qa-icon.orange { background: var(--orange-soft); }
+  .qa-icon.red    { background: var(--red-soft); }
+  .qa-info { flex: 1; }
+  .qa-name { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 1px; }
+  .qa-desc { font-size: 11px; color: var(--text-dim); }
+  .qa-arrow { color: var(--text-dim); font-size: 14px; }
+
+  /* ─── SCORE WIDGET ─── */
+  .score-widget {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 18px;
+    display: flex; flex-direction: column; align-items: center;
+    text-align: center; gap: 12px;
+    margin-bottom: 14px;
+  }
+  .score-ring {
+    position: relative; width: 90px; height: 90px;
+  }
+  .score-ring svg { transform: rotate(-90deg); }
+  .score-ring-bg { fill: none; stroke: rgba(255,255,255,0.06); stroke-width: 6; }
+  .score-ring-fill { fill: none; stroke: var(--cyan); stroke-width: 6; stroke-linecap: round;
+    stroke-dasharray: 226; stroke-dashoffset: 29; /* 87/100 */
+    filter: drop-shadow(0 0 8px rgba(0,210,210,0.5));
+  }
+  .score-value {
+    position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: var(--cyan);
+  }
+  .score-value span { font-size: 10px; color: var(--text-dim); font-weight: 500; }
+  .score-label { font-size: 13px; font-weight: 600; color: var(--green); }
+  .score-sub { font-size: 11px; color: var(--text-dim); }
+
+  /* ─── AI PANEL (overlay) ─── */
+  .ai-overlay {
+    position: absolute; inset: 0;
+    background: rgba(8,12,24,0.92); backdrop-filter: blur(12px);
+    display: flex; flex-direction: column;
+    z-index: 100; opacity: 0; pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  .ai-overlay.open { opacity: 1; pointer-events: all; }
+
+  .ai-header {
+    padding: 20px 28px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .ai-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px; }
+  .ai-title span { color: var(--cyan); }
+  .ai-close {
+    background: rgba(255,255,255,0.06); border: none; border-radius: 8px;
+    color: var(--text-dim); padding: 6px 10px; cursor: pointer; font-size: 14px;
+    transition: all 0.15s;
+  }
+  .ai-close:hover { background: var(--red-soft); color: var(--red); }
+
+  .ai-body { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 0; overflow: hidden; }
+
+  /* chat */
+  .ai-chat {
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .ai-chat-messages {
+    flex: 1; overflow-y: auto; padding: 20px 24px;
+    display: flex; flex-direction: column; gap: 14px;
+    scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.06) transparent;
+  }
+  .chat-msg { display: flex; gap: 10px; animation: msgIn 0.25s ease; }
+  @keyframes msgIn { from { opacity:0; transform:translateY(6px); } }
+  .chat-msg.user { flex-direction: row-reverse; }
+  .chat-avatar {
+    width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 14px;
+  }
+  .chat-avatar.ai   { background: linear-gradient(135deg, #00D2D2, #0066FF); }
+  .chat-avatar.user { background: rgba(255,255,255,0.1); border: 1px solid var(--border); }
+  .chat-bubble {
+    max-width: 78%; padding: 10px 14px; border-radius: 12px;
+    font-size: 13.5px; line-height: 1.5;
+  }
+  .chat-msg.ai .chat-bubble {
+    background: rgba(0,210,210,0.08); border: 1px solid rgba(0,210,210,0.15);
+    color: var(--text); border-radius: 4px 12px 12px 12px;
+  }
+  .chat-msg.user .chat-bubble {
+    background: rgba(255,255,255,0.07); border: 1px solid var(--border);
+    color: var(--text-mid); border-radius: 12px 4px 12px 12px;
+  }
+
+  .confirm-box {
+    margin: 4px 0; background: var(--bg-card);
+    border: 1px solid var(--border-lit); border-radius: 10px;
+    padding: 14px;
+  }
+  .confirm-box .action-preview {
+    font-family: 'DM Mono', monospace; font-size: 11px;
+    color: var(--cyan); background: rgba(0,210,210,0.07);
+    padding: 8px 10px; border-radius: 6px; margin: 8px 0;
+  }
+  .confirm-buttons { display: flex; gap: 8px; margin-top: 10px; }
+  .btn-confirm { background: var(--cyan); color: #001F2E; border: none; padding: 7px 16px; border-radius: 7px; font-weight: 700; font-size: 12px; cursor: pointer; transition: all 0.15s; }
+  .btn-confirm:hover { box-shadow: 0 0 16px rgba(0,210,210,0.4); }
+  .btn-cancel  { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-dim); padding: 7px 16px; border-radius: 7px; font-size: 12px; cursor: pointer; }
+
+  .ai-input-area {
+    padding: 14px 20px; border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .ai-suggestions { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+  .ai-chip {
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09);
+    color: var(--text-dim); padding: 5px 10px; border-radius: 20px; font-size: 11.5px;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .ai-chip:hover { background: var(--cyan-soft); border-color: rgba(0,210,210,0.3); color: var(--cyan); }
+  .ai-input-row { display: flex; gap: 8px; }
+  .ai-input {
+    flex: 1; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px; padding: 10px 14px; color: var(--text); font-family: 'DM Sans', sans-serif;
+    font-size: 13.5px; outline: none; transition: border-color 0.15s;
+  }
+  .ai-input:focus { border-color: rgba(0,210,210,0.3); }
+  .ai-input::placeholder { color: var(--text-dim); }
+  .ai-send {
+    background: var(--cyan); border: none; border-radius: 10px;
+    color: #001F2E; padding: 10px 16px; cursor: pointer; font-size: 16px;
+    transition: all 0.15s; font-weight: 700;
+  }
+  .ai-send:hover { box-shadow: 0 0 20px rgba(0,210,210,0.4); }
+
+  /* terminal panel */
+  .ai-terminal {
+    display: flex; flex-direction: column; overflow: hidden;
+    background: #060A14;
+  }
+  .terminal-header {
+    padding: 12px 20px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+  }
+  .terminal-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .terminal-dot.red  { background: #FF5F57; }
+  .terminal-dot.yellow { background: #FFBD2E; }
+  .terminal-dot.green { background: #28C840; }
+  .terminal-label { font-size: 12px; color: var(--text-dim); margin-left: 6px; font-family: 'DM Mono', monospace; }
+  .terminal-status {
+    margin-left: auto; display: flex; align-items: center; gap: 5px;
+    font-size: 11px; color: var(--green); font-family: 'DM Mono', monospace;
+  }
+  .t-live { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 1.5s infinite; }
+
+  .terminal-body {
+    flex: 1; overflow-y: auto; padding: 16px 20px;
+    font-family: 'DM Mono', monospace; font-size: 12px; line-height: 1.7;
+    scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.06) transparent;
+  }
+  .t-line { display: flex; gap: 10px; animation: tLine 0.1s ease; }
+  @keyframes tLine { from { opacity:0; } }
+  .t-prompt { color: var(--cyan); flex-shrink: 0; }
+  .t-cmd    { color: #E8EDF7; }
+  .t-out    { color: var(--text-dim); }
+  .t-ok     { color: var(--green); }
+  .t-err    { color: var(--red); }
+  .t-think  { color: #A78BFA; font-style: italic; opacity: 0.8; }
+  .t-info   { color: var(--cyan); }
+
+  /* ─── TABS for main content ─── */
+  .tab-bar {
+    display: flex; gap: 0; border-bottom: 1px solid var(--border);
+    padding: 0 28px; flex-shrink: 0;
+    background: rgba(8,12,24,0.5);
+  }
+  .tab {
+    padding: 12px 18px; font-size: 13px; font-weight: 500;
+    color: var(--text-dim); cursor: pointer; border-bottom: 2px solid transparent;
+    transition: all 0.15s; margin-bottom: -1px;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--cyan); border-bottom-color: var(--cyan); }
+
+  /* ─── PAGES ─── */
+  .page { display: none; }
+  .page.active { display: block; animation: fadeIn 0.2s ease; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(4px); } }
+
+  /* clean tab */
+  .clean-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+  .clean-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px;
+    transition: all 0.2s ease; cursor: pointer;
+    position: relative; overflow: hidden;
+  }
+  .clean-card:hover { border-color: var(--border-lit); transform: translateY(-1px); }
+  .clean-card.selected { border-color: rgba(0,210,210,0.4); background: rgba(0,210,210,0.05); }
+  .clean-card.selected::after {
+    content: '✓'; position: absolute; top: 10px; right: 10px;
+    color: var(--cyan); font-size: 12px; font-weight: 700;
+  }
+  .clean-icon { font-size: 22px; margin-bottom: 8px; }
+  .clean-name { font-weight: 600; font-size: 13px; margin-bottom: 3px; }
+  .clean-size { font-size: 22px; font-family: 'Syne', sans-serif; font-weight: 800; color: var(--cyan); }
+  .clean-path { font-size: 11px; color: var(--text-dim); font-family: 'DM Mono', monospace; margin-top: 4px; }
+  .clean-tag { display: inline-block; font-size: 10px; padding: 2px 7px; border-radius: 20px; margin-top: 6px; font-weight: 600; }
+  .clean-tag.safe   { background: var(--green-soft); color: var(--green); }
+  .clean-tag.check  { background: var(--orange-soft); color: var(--orange); }
+
+  .clean-action-bar {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 18px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .clean-total { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: var(--green); }
+  .clean-total-label { font-size: 12px; color: var(--text-dim); }
+
+  /* security tab */
+  .device-list { display: flex; flex-direction: column; gap: 8px; }
+  .device-item {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 16px;
+    display: flex; align-items: center; gap: 14px;
+    transition: all 0.15s; cursor: pointer;
+  }
+  .device-item:hover { border-color: var(--border-lit); background: var(--bg-hover); }
+  .device-icon-wrap { width: 38px; height: 38px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .device-icon-wrap.usb  { background: var(--cyan-soft); }
+  .device-icon-wrap.bt   { background: rgba(77,166,255,0.1); }
+  .device-icon-wrap.net  { background: var(--green-soft); }
+  .device-name { font-weight: 600; font-size: 13px; }
+  .device-sub  { font-size: 11px; color: var(--text-dim); font-family: 'DM Mono', monospace; }
+  .device-status { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+  .badge { display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; }
+  .badge.ok     { background: var(--green-soft); color: var(--green); }
+  .badge.warn   { background: var(--orange-soft); color: var(--orange); }
+  .badge.analyze{ background: var(--cyan-soft); color: var(--cyan); }
+  .badge.danger { background: var(--red-soft); color: var(--red); }
+  .analyzing-bar {
+    height: 2px; background: var(--border); border-radius: 2px; overflow: hidden; margin-top: 4px;
+  }
+  .analyzing-fill {
+    height: 100%; background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    animation: scan 1.5s infinite; width: 60%;
+  }
+  @keyframes scan { 0%{transform:translateX(-100%)} 100%{transform:translateX(250%)} }
+
+  /* tooltip */
+  [title] { position: relative; }
+
+  /* wifi icon bars */
+  .wifi-bars { display: flex; align-items: flex-end; gap: 2px; height: 14px; }
+  .wifi-bar { width: 3px; background: var(--green); border-radius: 1px; }
+  .wifi-bar:nth-child(1) { height: 4px; }
+  .wifi-bar:nth-child(2) { height: 7px; }
+  .wifi-bar:nth-child(3) { height: 10px; }
+  .wifi-bar:nth-child(4) { height: 14px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">⬡</div>
+      <div>
+        <div class="logo-text">Affinity</div>
+        <div class="logo-user">Bonjour, Henri 👋</div>
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Général</div>
+      <div class="nav-item active" onclick="switchPage('dashboard', this)">
+        <span class="nav-icon">⊞</span> Tableau de bord
+      </div>
+      <div class="nav-item" onclick="switchPage('clean', this)">
+        <span class="nav-icon">✧</span> Nettoyage
+      </div>
+      <div class="nav-item" onclick="switchPage('security', this)">
+        <span class="nav-icon">⬡</span> Sécurité
+        <span class="nav-badge">1</span>
+      </div>
+      <div class="nav-item" onclick="switchPage('system', this)">
+        <span class="nav-icon">⟁</span> Système
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Outils</div>
+      <div class="nav-item" onclick="switchPage('history', this)">
+        <span class="nav-icon">⊚</span> Historique
+      </div>
+      <div class="nav-item" onclick="openAI()">
+        <span class="nav-icon">⬙</span> Assistant IA
+        <span class="nav-badge cyan">IA</span>
+      </div>
+      <div class="nav-item" onclick="switchPage('settings', this)">
+        <span class="nav-icon">⚙</span> Paramètres
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="status-dot">
+        <div class="pulse"></div>
+        Monitoring actif
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <main class="main">
+
+    <!-- AI OVERLAY -->
+    <div class="ai-overlay" id="aiOverlay">
+      <div class="ai-header">
+        <div>
+          <div class="ai-title">Assistant <span>Affinity IA</span></div>
+          <div style="font-size:12px;color:var(--text-dim);margin-top:2px">Décrivez ce que vous voulez faire — je comprends, je confirme, j'exécute.</div>
+        </div>
+        <button class="ai-close" onclick="closeAI()">✕ Fermer</button>
+      </div>
+      <div class="ai-body">
+        <!-- chat -->
+        <div class="ai-chat">
+          <div class="ai-chat-messages" id="chatMessages">
+            <div class="chat-msg ai">
+              <div class="chat-avatar ai">⬡</div>
+              <div class="chat-bubble">Bonjour Henri. Que souhaitez-vous faire ? Décrivez simplement votre besoin — je poserai le minimum de questions nécessaires avant d'agir.</div>
+            </div>
+            <div class="chat-msg user">
+              <div class="chat-avatar user">H</div>
+              <div class="chat-bubble">Installe Discord</div>
+            </div>
+            <div class="chat-msg ai">
+              <div class="chat-avatar ai">⬡</div>
+              <div>
+                <div class="chat-bubble">Discord n'est pas disponible dans les dépôts Ubuntu officiels. Je peux l'installer via le fichier .deb officiel depuis discordapp.com. Voici ce que je vais faire :</div>
+                <div class="confirm-box">
+                  <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px">📦 Installation de Discord</div>
+                  <div style="font-size:12px;color:var(--text-dim)">Source : discord.com/api/download (paquet officiel .deb)</div>
+                  <div class="action-preview">wget -O /tmp/discord.deb "https://discord.com/api/download?platform=linux&format=deb"
+dpkg -i /tmp/discord.deb
+apt-get install -f</div>
+                  <div style="font-size:12px;color:var(--text-dim)">Taille estimée : ~85 Mo · Durée estimée : 2 min</div>
+                  <div class="confirm-buttons">
+                    <button class="btn-confirm" onclick="startInstall()">✓ Confirmer</button>
+                    <button class="btn-cancel">Annuler</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="ai-input-area">
+            <div class="ai-suggestions">
+              <div class="ai-chip" onclick="fillInput(this)">Installer VLC</div>
+              <div class="ai-chip" onclick="fillInput(this)">Monter ma clé USB</div>
+              <div class="ai-chip" onclick="fillInput(this)">Libérer de la RAM</div>
+              <div class="ai-chip" onclick="fillInput(this)">Installer les drivers wifi</div>
+              <div class="ai-chip" onclick="fillInput(this)">Optimiser pour la vidéo</div>
+            </div>
+            <div class="ai-input-row">
+              <input class="ai-input" id="aiInput" placeholder="Décrivez votre besoin en français..." />
+              <button class="ai-send" onclick="sendMessage()">↑</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- terminal -->
+        <div class="ai-terminal">
+          <div class="terminal-header">
+            <div class="terminal-dot red"></div>
+            <div class="terminal-dot yellow"></div>
+            <div class="terminal-dot green"></div>
+            <div class="terminal-label">affinity — terminal</div>
+            <div class="terminal-status" id="termStatus">
+              <div class="t-live"></div>en attente
+            </div>
+          </div>
+          <div class="terminal-body" id="termBody">
+            <div class="t-line"><span class="t-info"># Affinity Terminal — en attente de commande</span></div>
+            <div class="t-line"><span class="t-think">💭 Analyse de la requête : "Installe Discord"</span></div>
+            <div class="t-line"><span class="t-think">💭 Discord n'est pas dans apt... vérification alternatives</span></div>
+            <div class="t-line"><span class="t-think">💭 Source officielle trouvée : discordapp.com/download</span></div>
+            <div class="t-line"><span class="t-think">💭 Format disponible : .deb → compatible Ubuntu ✓</span></div>
+            <div class="t-line"><span class="t-info">⬡ En attente de confirmation utilisateur...</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TITLE BAR -->
+    <div class="titlebar">
+      <div class="titlebar-left">
+        <div class="titlebar-title" id="pageTitle">Tableau de bord</div>
+        <div class="titlebar-sub" id="pageSubtitle">Vendredi 21 février 2026 · 00:19 · Dell Latitude E6540</div>
+      </div>
+      <div class="titlebar-right">
+        <button class="btn btn-ghost" onclick="openAI()">⬙ Assistant IA</button>
+        <button class="btn btn-primary" onclick="runScan()">▷ Analyser</button>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content" id="mainContent">
+
+      <!-- ── DASHBOARD ── -->
+      <div class="page active" id="page-dashboard">
+
+        <!-- Alert -->
+        <div class="alert-banner" id="alertBanner">
+          <span class="alert-icon">💾</span>
+          <span class="alert-text"><b>Henri,</b> votre disque est à 85% de capacité. Un nettoyage pourrait libérer jusqu'à 2,4 Go.</span>
+          <button class="alert-action" onclick="switchPage('clean', document.querySelector('.nav-item:nth-child(2)'))">Nettoyer →</button>
+          <button class="alert-close" onclick="this.parentElement.remove()">✕</button>
+        </div>
+
+        <!-- Metric Cards -->
+        <div class="section-header">
+          <div class="section-title">État en temps réel</div>
+          <div class="section-link">actualiser ↺</div>
+        </div>
+        <div class="metrics-grid">
+          <div class="metric-card green" onclick="openMetricDetail('cpu')">
+            <div class="metric-header">
+              <div class="metric-label">CPU</div>
+              <div class="metric-icon">⟁</div>
+            </div>
+            <div class="metric-value">34%</div>
+            <div class="metric-sub">Temp <b>52°C</b> · i5-5300U</div>
+            <svg class="sparkline" viewBox="0 0 120 28" preserveAspectRatio="none">
+              <polyline points="0,20 15,15 30,18 45,10 60,14 75,8 90,16 105,12 120,14"
+                fill="none" stroke="#00E5A0" stroke-width="1.5"/>
+              <polygon points="0,20 15,15 30,18 45,10 60,14 75,8 90,16 105,12 120,14 120,28 0,28"
+                fill="rgba(0,229,160,0.08)"/>
+            </svg>
+            <div class="metric-bar"><div class="metric-fill" style="width:34%"></div></div>
+            <div class="metric-hover-btn">Détails →</div>
+          </div>
+
+          <div class="metric-card cyan" onclick="openMetricDetail('ram')">
+            <div class="metric-header">
+              <div class="metric-label">RAM</div>
+              <div class="metric-icon">◈</div>
+            </div>
+            <div class="metric-value">5,2 Go</div>
+            <div class="metric-sub"><b>32%</b> de 16 Go utilisés</div>
+            <svg class="sparkline" viewBox="0 0 120 28" preserveAspectRatio="none">
+              <polyline points="0,16 15,14 30,12 45,10 60,14 75,12 90,10 105,12 120,14"
+                fill="none" stroke="#00D2D2" stroke-width="1.5"/>
+              <polygon points="0,16 15,14 30,12 45,10 60,14 75,12 90,10 105,12 120,14 120,28 0,28"
+                fill="rgba(0,210,210,0.07)"/>
+            </svg>
+            <div class="metric-bar"><div class="metric-fill" style="width:32%"></div></div>
+            <div class="metric-hover-btn">Libérer ↻</div>
+          </div>
+
+          <div class="metric-card orange" onclick="switchPage('clean', null)">
+            <div class="metric-header">
+              <div class="metric-label">Disque</div>
+              <div class="metric-icon">💾</div>
+            </div>
+            <div class="metric-value">85%</div>
+            <div class="metric-sub"><b>218 Go</b> / 256 Go — SSD</div>
+            <svg class="sparkline" viewBox="0 0 120 28" preserveAspectRatio="none">
+              <polyline points="0,22 15,21 30,20 45,19 60,18 75,17 90,16 105,15 120,14"
+                fill="none" stroke="#FF8C42" stroke-width="1.5"/>
+              <polygon points="0,22 15,21 30,20 45,19 60,18 75,17 90,16 105,15 120,14 120,28 0,28"
+                fill="rgba(255,140,66,0.07)"/>
+            </svg>
+            <div class="metric-bar"><div class="metric-fill" style="width:85%"></div></div>
+            <div class="metric-hover-btn">Nettoyer 🧹</div>
+          </div>
+
+          <div class="metric-card blue">
+            <div class="metric-header">
+              <div class="metric-label">Réseau</div>
+              <div class="metric-icon">
+                <div class="wifi-bars"><div class="wifi-bar"></div><div class="wifi-bar"></div><div class="wifi-bar"></div><div class="wifi-bar"></div></div>
+              </div>
+            </div>
+            <div class="metric-value" style="font-size:17px;letter-spacing:-0.5px;margin-top:4px">WiFi‑Orange</div>
+            <div class="metric-sub">↓ <b>2,3 Mo/s</b> · ↑ 0,4 Mo/s</div>
+            <div style="font-size:11px;color:var(--text-dim);margin-top:6px;font-family:'DM Mono',monospace">192.168.1.12</div>
+            <div style="margin-top:12px">
+              <span class="badge ok">● Connecté</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom -->
+        <div class="bottom-grid">
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <!-- Score + Activity -->
+            <div style="display:grid;grid-template-columns:140px 1fr;gap:14px">
+              <!-- Score -->
+              <div style="display:flex;flex-direction:column;gap:12px">
+                <div class="score-widget">
+                  <div class="score-ring">
+                    <svg width="90" height="90" viewBox="0 0 90 90">
+                      <circle cx="45" cy="45" r="36" class="score-ring-bg"/>
+                      <circle cx="45" cy="45" r="36" class="score-ring-fill"/>
+                    </svg>
+                    <div class="score-value">87<span>/100</span></div>
+                  </div>
+                  <div class="score-label">Excellent</div>
+                  <div class="score-sub" style="font-size:10px">Score de santé système</div>
+                </div>
+              </div>
+
+              <!-- Activity -->
+              <div class="card">
+                <div class="card-title">⊚ Activité récente</div>
+                <div class="activity-list">
+                  <div class="activity-item">
+                    <div class="activity-dot cyan"></div>
+                    <div class="activity-desc"><b>Clé USB SanDisk</b> détectée — driver installé</div>
+                    <div class="activity-time">il y a 2h</div>
+                  </div>
+                  <div class="activity-item">
+                    <div class="activity-dot green"></div>
+                    <div class="activity-desc"><b>Nettoyage auto</b> effectué — 1,2 Go libérés</div>
+                    <div class="activity-time">hier 03:00</div>
+                  </div>
+                  <div class="activity-item">
+                    <div class="activity-dot orange"></div>
+                    <div class="activity-desc"><b>Disque à 85%</b> — nettoyage recommandé</div>
+                    <div class="activity-time">hier 08:12</div>
+                  </div>
+                  <div class="activity-item">
+                    <div class="activity-dot blue"></div>
+                    <div class="activity-desc"><b>Profil Équilibré</b> activé au démarrage</div>
+                    <div class="activity-time">hier 07:58</div>
+                  </div>
+                  <div class="activity-item">
+                    <div class="activity-dot green"></div>
+                    <div class="activity-desc"><b>Analyse sécurité</b> — aucune menace</div>
+                    <div class="activity-time">mer. 15:30</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="card">
+            <div class="card-title">⚡ Actions rapides</div>
+            <div class="quick-actions">
+              <div class="qa-btn" onclick="switchPage('clean', null)">
+                <div class="qa-icon green">🧹</div>
+                <div class="qa-info">
+                  <div class="qa-name">Nettoyer</div>
+                  <div class="qa-desc">2,4 Go disponibles</div>
+                </div>
+                <div class="qa-arrow">›</div>
+              </div>
+              <div class="qa-btn" onclick="switchPage('security', null)">
+                <div class="qa-icon cyan">🔍</div>
+                <div class="qa-info">
+                  <div class="qa-name">Analyser</div>
+                  <div class="qa-desc">Sécurité système</div>
+                </div>
+                <div class="qa-arrow">›</div>
+              </div>
+              <div class="qa-btn" onclick="switchPage('system', null)">
+                <div class="qa-icon orange">⚡</div>
+                <div class="qa-info">
+                  <div class="qa-name">Optimiser</div>
+                  <div class="qa-desc">Mode performance</div>
+                </div>
+                <div class="qa-arrow">›</div>
+              </div>
+              <div class="qa-btn" onclick="openAI()">
+                <div class="qa-icon" style="background:rgba(167,139,250,0.1);font-size:18px">⬙</div>
+                <div class="qa-info">
+                  <div class="qa-name">Assistant IA</div>
+                  <div class="qa-desc">Décrire une action</div>
+                </div>
+                <div class="qa-arrow">›</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── NETTOYAGE ── -->
+      <div class="page" id="page-clean">
+        <div class="section-header" style="margin-bottom:20px">
+          <div>
+            <div class="section-title">Analyse complète</div>
+            <div style="font-size:12px;color:var(--text-dim);margin-top:3px">Dernier nettoyage : il y a 3 jours</div>
+          </div>
+          <button class="btn btn-primary">▷ Re-analyser</button>
+        </div>
+
+        <div class="clean-grid">
+          <div class="clean-card selected">
+            <div class="clean-icon">📦</div>
+            <div class="clean-name">Cache APT</div>
+            <div class="clean-size">234 Mo</div>
+            <div class="clean-path">/var/cache/apt/archives/</div>
+            <div class="clean-tag safe">Sûr</div>
+          </div>
+          <div class="clean-card selected">
+            <div class="clean-icon">🌐</div>
+            <div class="clean-name">Cache navigateurs</div>
+            <div class="clean-size">1,2 Go</div>
+            <div class="clean-path">~/.cache/google-chrome/</div>
+            <div class="clean-tag safe">Sûr</div>
+          </div>
+          <div class="clean-card selected">
+            <div class="clean-icon">📁</div>
+            <div class="clean-name">Fichiers temporaires</div>
+            <div class="clean-size">45 Mo</div>
+            <div class="clean-path">/tmp · /var/tmp</div>
+            <div class="clean-tag safe">Sûr</div>
+          </div>
+          <div class="clean-card selected">
+            <div class="clean-icon">📋</div>
+            <div class="clean-name">Journaux anciens</div>
+            <div class="clean-size">88 Mo</div>
+            <div class="clean-path">/var/log/ (>30j)</div>
+            <div class="clean-tag safe">Sûr</div>
+          </div>
+          <div class="clean-card">
+            <div class="clean-icon">🗑</div>
+            <div class="clean-name">Poubelle</div>
+            <div class="clean-size">320 Mo</div>
+            <div class="clean-path">~/.local/share/Trash/</div>
+            <div class="clean-tag check">Confirmer</div>
+          </div>
+          <div class="clean-card selected">
+            <div class="clean-icon">🖼</div>
+            <div class="clean-name">Miniatures orphelines</div>
+            <div class="clean-size">12 Mo</div>
+            <div class="clean-path">~/.cache/thumbnails/</div>
+            <div class="clean-tag safe">Sûr</div>
+          </div>
+          <div class="clean-card">
+            <div class="clean-icon">📦</div>
+            <div class="clean-name">Paquets orphelins</div>
+            <div class="clean-size">450 Mo</div>
+            <div class="clean-path">apt autoremove (15 paquets)</div>
+            <div class="clean-tag check">Confirmer</div>
+          </div>
+          <div class="clean-card selected">
+            <div class="clean-icon">💥</div>
+            <div class="clean-name">Rapports de crash</div>
+            <div class="clean-size">8 Mo</div>
+            <div class="clean-path">/var/crash/*.crash</div>
+            <div class="clean-tag safe">Sûr</div>
+          </div>
+          <div class="clean-card selected">
+            <div class="clean-icon">📸</div>
+            <div class="clean-name">Cache Snap</div>
+            <div class="clean-size">67 Mo</div>
+            <div class="clean-path">~/snap/*/common/.cache</div>
+            <div class="clean-tag safe">Sûr</div>
+          </div>
+        </div>
+
+        <div class="clean-action-bar">
+          <div>
+            <div class="clean-total">1,99 Go sélectionnés</div>
+            <div class="clean-total-label">sur 2,4 Go récupérables au total</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <span style="font-size:12px;color:var(--text-dim)">☑ Tout · ☐ Rien</span>
+            <button class="btn btn-primary">🧹 Nettoyer la sélection</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SÉCURITÉ ── -->
+      <div class="page" id="page-security">
+        <div style="display:grid;grid-template-columns:1fr 200px;gap:20px;margin-bottom:24px;align-items:start">
+          <div>
+            <div class="section-header">
+              <div class="section-title">Périphériques connectés</div>
+              <button class="btn btn-ghost" style="font-size:12px;padding:5px 10px">+ Approuver tout</button>
+            </div>
+            <div class="device-list">
+              <div class="device-item">
+                <div class="device-icon-wrap usb">💾</div>
+                <div>
+                  <div class="device-name">SanDisk Ultra 32Go</div>
+                  <div class="device-sub">USB 3.0 · VID:0781 PID:5581 · il y a 2h</div>
+                </div>
+                <div class="device-status">
+                  <span class="badge ok">✓ Driver OK</span>
+                  <span class="badge ok">✓ Approuvé</span>
+                </div>
+              </div>
+              <div class="device-item">
+                <div class="device-icon-wrap bt">🎧</div>
+                <div>
+                  <div class="device-name">JBL Tune 760NC</div>
+                  <div class="device-sub">Bluetooth 5.0 · 70:26:05:AA:BB:CC</div>
+                </div>
+                <div class="device-status">
+                  <span class="badge ok">✓ Driver OK</span>
+                  <span class="badge ok">✓ Approuvé</span>
+                </div>
+              </div>
+              <div class="device-item">
+                <div class="device-icon-wrap usb">🖱</div>
+                <div>
+                  <div class="device-name">Périphérique inconnu</div>
+                  <div class="device-sub">USB 2.0 · VID:1234 PID:5678 · branché il y a 5min</div>
+                  <div class="analyzing-bar"><div class="analyzing-fill"></div></div>
+                </div>
+                <div class="device-status">
+                  <span class="badge analyze">🔍 Analyse…</span>
+                </div>
+              </div>
+              <div class="device-item">
+                <div class="device-icon-wrap net">🌐</div>
+                <div>
+                  <div class="device-name">Intel Wireless-AC 7265</div>
+                  <div class="device-sub">PCI · driver: iwlwifi · WiFi-Orange-5G</div>
+                </div>
+                <div class="device-status">
+                  <span class="badge ok">✓ Opérationnel</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div class="score-widget" style="margin-bottom:0">
+              <div class="score-ring">
+                <svg width="90" height="90" viewBox="0 0 90 90">
+                  <circle cx="45" cy="45" r="36" class="score-ring-bg"/>
+                  <circle cx="45" cy="45" r="36" class="score-ring-fill" style="stroke-dashoffset:45"/>
+                </svg>
+                <div class="score-value" style="color:var(--orange)">80<span>/100</span></div>
+              </div>
+              <div class="score-label" style="color:var(--orange)">Bon</div>
+              <div class="score-sub">1 analyse en cours</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-header">
+          <div class="section-title">Connexions réseau actives</div>
+        </div>
+        <div class="card">
+          <div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text-dim)">
+            <div style="display:grid;grid-template-columns:120px 1fr 180px 80px 80px;gap:8px;padding:6px 8px;color:var(--text-dim);font-size:11px;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">
+              <span>Processus</span><span>IP distante</span><span>Port/Protocole</span><span>Type</span><span>Statut</span>
+            </div>
+            <div style="display:grid;grid-template-columns:120px 1fr 180px 80px 80px;gap:8px;padding:8px;border-radius:7px;background:rgba(255,255,255,0.02)">
+              <span style="color:var(--text)">firefox</span><span>142.250.74.100</span><span>443 · HTTPS</span><span style="color:var(--green)">✓ OK</span><span style="color:var(--green)">⬤</span>
+            </div>
+            <div style="display:grid;grid-template-columns:120px 1fr 180px 80px 80px;gap:8px;padding:8px;border-radius:7px">
+              <span style="color:var(--text)">spotify</span><span>35.186.224.25</span><span>443 · HTTPS</span><span style="color:var(--green)">✓ OK</span><span style="color:var(--green)">⬤</span>
+            </div>
+            <div style="display:grid;grid-template-columns:120px 1fr 180px 80px 80px;gap:8px;padding:8px;border-radius:7px;background:rgba(255,255,255,0.02)">
+              <span style="color:var(--text)">python3</span><span>—</span><span>interne</span><span style="color:var(--cyan)">Affinity</span><span style="color:var(--cyan)">⬤</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SYSTEM ── -->
+      <div class="page" id="page-system">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+          <div class="card">
+            <div class="card-title">⟁ Matériel</div>
+            <div style="display:flex;flex-direction:column;gap:10px;font-size:13px">
+              <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+                <span style="color:var(--text-dim)">Modèle</span><span style="font-weight:500">Dell Latitude E6540</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+                <span style="color:var(--text-dim)">CPU</span><span style="font-weight:500">Intel Core i5-5300U · 2,3 GHz</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+                <span style="color:var(--text-dim)">RAM</span><span style="font-weight:500">16 Go DDR3L</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+                <span style="color:var(--text-dim)">Disque</span><span style="font-weight:500">SSD 256 Go · Samsung</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:8px 0">
+                <span style="color:var(--text-dim)">GPU</span><span style="font-weight:500">Intel HD 5500</span>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">⚡ Profil d'optimisation</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="background:rgba(0,210,210,0.08);border:1px solid rgba(0,210,210,0.25);border-radius:10px;padding:12px;cursor:pointer">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+                  <span style="font-size:16px">⚖️</span>
+                  <span style="font-weight:700;color:var(--cyan)">Équilibré</span>
+                  <span style="background:var(--cyan);color:#001F2E;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;margin-left:auto">ACTIF</span>
+                </div>
+                <div style="font-size:12px;color:var(--text-dim)">Governor schedutil · Swappiness 30 · optimisé SSD</div>
+              </div>
+              <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:10px;padding:12px;cursor:pointer;transition:all 0.15s" onmouseenter="this.style.borderColor='rgba(255,255,255,0.12)'" onmouseleave="this.style.borderColor='rgba(255,255,255,0.06)'">
+                <div style="display:flex;align-items:center;gap:8px">
+                  <span style="font-size:16px">🔋</span>
+                  <span style="font-weight:600">Économie</span>
+                </div>
+                <div style="font-size:12px;color:var(--text-dim);margin-top:3px">Governor powersave · Idéal sur batterie</div>
+              </div>
+              <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:10px;padding:12px;cursor:pointer;transition:all 0.15s" onmouseenter="this.style.borderColor='rgba(255,255,255,0.12)'" onmouseleave="this.style.borderColor='rgba(255,255,255,0.06)'">
+                <div style="display:flex;align-items:center;gap:8px">
+                  <span style="font-size:16px">⚡</span>
+                  <span style="font-weight:600">Performance</span>
+                </div>
+                <div style="font-size:12px;color:var(--text-dim);margin-top:3px">Governor performance · Swappiness 10</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── HISTORY ── -->
+      <div class="page" id="page-history">
+        <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">
+          <div class="ai-chip" style="background:var(--cyan-soft);border-color:rgba(0,210,210,0.3);color:var(--cyan)">Tous</div>
+          <div class="ai-chip">🧹 Nettoyage</div>
+          <div class="ai-chip">🛡 Sécurité</div>
+          <div class="ai-chip">🔌 Périphériques</div>
+          <div class="ai-chip">⚡ Optimisation</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0">
+          <div style="font-size:11px;font-weight:700;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;padding:8px 16px;display:flex;align-items:center;gap:12px">
+            <div style="flex:1;height:1px;background:var(--border)"></div>Aujourd'hui<div style="flex:1;height:1px;background:var(--border)"></div>
+          </div>
+          <div class="activity-item" style="padding:12px 16px">
+            <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim);width:45px;flex-shrink:0">14:32</div>
+            <div class="activity-dot cyan"></div>
+            <div class="activity-desc"><b>Clé USB SanDisk 32Go</b> analysée — Aucune menace · Driver vfat installé</div>
+            <span class="badge" style="background:var(--cyan-soft);color:var(--cyan);font-size:10px">PÉRIPHÉRIQUE</span>
+          </div>
+          <div class="activity-item" style="padding:12px 16px">
+            <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim);width:45px;flex-shrink:0">09:15</div>
+            <div class="activity-dot orange"></div>
+            <div class="activity-desc"><b>Alerte disque</b> — 85% de capacité atteint</div>
+            <span class="badge warn">ALERTE</span>
+          </div>
+          <div style="font-size:11px;font-weight:700;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;padding:8px 16px;display:flex;align-items:center;gap:12px;margin-top:8px">
+            <div style="flex:1;height:1px;background:var(--border)"></div>Hier<div style="flex:1;height:1px;background:var(--border)"></div>
+          </div>
+          <div class="activity-item" style="padding:12px 16px">
+            <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim);width:45px;flex-shrink:0">03:00</div>
+            <div class="activity-dot green"></div>
+            <div class="activity-desc"><b>Nettoyage automatique</b> effectué — 1,2 Go libérés en 32 secondes</div>
+            <span class="badge ok">NETTOYAGE</span>
+          </div>
+          <div class="activity-item" style="padding:12px 16px">
+            <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim);width:45px;flex-shrink:0">08:00</div>
+            <div class="activity-dot blue"></div>
+            <div class="activity-desc"><b>Profil Équilibré</b> activé au démarrage · Temps de boot : 8,4s</div>
+            <span class="badge" style="background:rgba(77,166,255,0.1);color:#4DA6FF;font-size:10px">SYSTÈME</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SETTINGS ── -->
+      <div class="page" id="page-settings">
+        <div style="display:grid;grid-template-columns:180px 1fr;gap:20px;max-width:900px">
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <div class="nav-item active" style="font-size:13px">Profil</div>
+            <div class="nav-item" style="font-size:13px">Comportement</div>
+            <div class="nav-item" style="font-size:13px">Notifications</div>
+            <div class="nav-item" style="font-size:13px">Apparence</div>
+            <div class="nav-item" style="font-size:13px">Assistant IA</div>
+            <div class="nav-item" style="font-size:13px">Mise à jour</div>
+          </div>
+          <div class="card" style="max-width:500px">
+            <div class="card-title" style="margin-bottom:18px">Profil utilisateur</div>
+            <div style="display:flex;flex-direction:column;gap:16px">
+              <div>
+                <label style="font-size:12px;color:var(--text-dim);display:block;margin-bottom:6px">Prénom</label>
+                <input type="text" value="Henri" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:9px 12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;width:100%;outline:none" onfocus="this.style.borderColor='rgba(0,210,210,0.4)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'" />
+              </div>
+              <div>
+                <label style="font-size:12px;color:var(--text-dim);display:block;margin-bottom:6px">Mode de comportement</label>
+                <div style="display:flex;flex-direction:column;gap:6px">
+                  <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid rgba(0,210,210,0.3);border-radius:8px;background:rgba(0,210,210,0.06);cursor:pointer">
+                    <div style="width:14px;height:14px;border-radius:50%;background:var(--cyan);border:3px solid #0A0E1A;box-shadow:0 0 0 2px var(--cyan)"></div>
+                    <div><div style="font-size:13px;font-weight:600;color:var(--cyan)">Mode supervisé</div><div style="font-size:11px;color:var(--text-dim)">Affinity propose, vous confirmez</div></div>
+                    <span style="margin-left:auto;font-size:10px;background:var(--cyan);color:#001F2E;padding:2px 7px;border-radius:20px;font-weight:700">Recommandé</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;cursor:pointer">
+                    <div style="width:14px;height:14px;border-radius:50%;border:2px solid var(--text-dim)"></div>
+                    <div><div style="font-size:13px;font-weight:600">Mode automatique</div><div style="font-size:11px;color:var(--text-dim)">Actions sans confirmation</div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </main>
+</div>
+
+<script>
+function switchPage(id, navEl) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelector('#page-' + id)?.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (navEl) navEl.classList.add('active');
+  const titles = {dashboard:'Tableau de bord',clean:'Nettoyage système',security:'Sécurité & Périphériques',system:'Système & Optimisation',history:'Historique',settings:'Paramètres'};
+  document.getElementById('pageTitle').textContent = titles[id] || id;
+}
+
+function openAI() {
+  document.getElementById('aiOverlay').classList.add('open');
+  document.getElementById('aiInput').focus();
+}
+function closeAI() {
+  document.getElementById('aiOverlay').classList.remove('open');
+}
+
+function fillInput(el) {
+  document.getElementById('aiInput').value = el.textContent;
+  document.getElementById('aiInput').focus();
+}
+
+function sendMessage() {
+  const val = document.getElementById('aiInput').value.trim();
+  if (!val) return;
+  addMsg('user', val);
+  document.getElementById('aiInput').value = '';
+  setTimeout(() => addMsg('ai', 'Je comprends votre demande. Laissez-moi analyser la meilleure approche pour "' + val + '"...'), 800);
+}
+
+function addMsg(role, text) {
+  const c = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'chat-msg ' + role;
+  div.innerHTML = `<div class="chat-avatar ${role}">${role==='ai'?'⬡':'H'}</div><div class="chat-bubble">${text}</div>`;
+  c.appendChild(div);
+  c.scrollTop = c.scrollHeight;
+}
+
+function startInstall() {
+  const term = document.getElementById('termBody');
+  const status = document.getElementById('termStatus');
+  status.innerHTML = '<div class="t-live"></div>en cours';
+  const lines = [
+    ['t-prompt', '$ ', 't-cmd', 'wget -O /tmp/discord.deb "https://discord.com/api/download?platform=linux&format=deb"'],
+    ['t-out', '', 't-out', 'Connexion à discord.com... connecté.'],
+    ['t-out', '', 't-out', 'Téléchargement : /tmp/discord.deb [85.2 MB]'],
+    ['t-out', '', 't-out', '█████████████░░░░ 78%  65.1 MB/s  eta 2s'],
+    ['t-out', '', 't-out', '████████████████  100%  — enregistré'],
+    ['t-prompt', '$ ', 't-cmd', 'pkexec dpkg -i /tmp/discord.deb'],
+    ['t-out', '', 't-out', 'Sélection du paquet discord préalablement désélectionné.'],
+    ['t-out', '', 't-out', 'Préparation du dépaquetage de discord.deb …'],
+    ['t-out', '', 't-out', 'Dépaquetage de discord (0.0.68) …'],
+    ['t-out', '', 't-out', 'Paramétrage de discord (0.0.68) …'],
+    ['t-ok', '', 't-ok', '✓ Discord installé avec succès.'],
+    ['t-ok', '', 't-ok', '✓ Raccourci créé dans les Applications.'],
+  ];
+  let i = 0;
+  const int = setInterval(() => {
+    if (i >= lines.length) {
+      clearInterval(int);
+      status.innerHTML = '<span style="color:var(--green)">✓ terminé</span>';
+      addMsg('ai', '✓ Discord a été installé avec succès. Vous le trouverez dans vos applications. Un raccourci a été créé sur le bureau.');
+      return;
+    }
+    const [, pre, cls, text] = lines[i];
+    const div = document.createElement('div');
+    div.className = 't-line';
+    div.innerHTML = `<span class="t-prompt">${pre}</span><span class="${cls}">${text}</span>`;
+    term.appendChild(div);
+    term.scrollTop = term.scrollHeight;
+    i++;
+  }, 320);
+}
+
+function openMetricDetail(type) {}
+function runScan() {
+  const btn = event.target;
+  btn.textContent = '⟳ Analyse...';
+  btn.style.opacity = '0.7';
+  setTimeout(() => { btn.textContent = '▷ Analyser'; btn.style.opacity = '1'; }, 2000);
+}
+
+// Animate bars on load
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.querySelectorAll('.metric-fill').forEach(el => el.style.transition = 'width 1.2s cubic-bezier(0.4,0,0.2,1)');
+  }, 100);
+});
+</script>
+</body>
+</html>

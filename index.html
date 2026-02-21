@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Affinity</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --cyan: #00D2D2;
+            --bg: #0A0E1A;
+            --sidebar: #080C18;
+            --text: #E0E0E0;
+            --text-dim: #A0A0A0;
+            --accent: #00D2D2;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            line-height: 1.6;
+            scroll-behavior: smooth;
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            padding: 20px;
+            background: radial-gradient(circle at center, #1a2236 0%, #0a0e1a 100%);
+        }
+
+        .hero-logo {
+            font-size: 80px;
+            margin-bottom: 20px;
+            color: var(--cyan);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0) scale(1.0);
+            }
+
+            50% {
+                transform: translateY(-20px) scale(1.05);
+            }
+        }
+
+        .hero-title {
+            font-size: 64px;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #FFFFFF, var(--cyan));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-tagline {
+            font-size: 20px;
+            color: var(--text-dim);
+            max-width: 600px;
+            margin-bottom: 40px;
+        }
+
+        .cta-group {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 16px 32px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        .btn-primary {
+            background-color: var(--cyan);
+            color: #001F2E;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 210, 210, 0.3);
+        }
+
+        .btn-outline {
+            border: 2px solid rgba(224, 224, 224, 0.1);
+            color: var(--text);
+        }
+
+        .btn-outline:hover {
+            background-color: rgba(224, 224, 224, 0.05);
+            border-color: var(--text);
+        }
+
+        /* Demo Section */
+        .demo-section {
+            padding: 100px 24px;
+            background: linear-gradient(180deg, var(--bg) 0%, #060a14 100%);
+            text-align: center;
+            display: none;
+            /* Hidden by default */
+        }
+
+        .demo-window {
+            max-width: 1000px;
+            margin: 40px auto;
+            background: var(--sidebar);
+            border-radius: 20px;
+            border: 1px solid var(--cyan);
+            overflow: hidden;
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
+            height: 620px;
+            position: relative;
+        }
+
+        .demo-window iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 100px 24px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 32px;
+        }
+
+        .card {
+            background-color: var(--sidebar);
+            padding: 40px;
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            border-color: var(--cyan);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-icon {
+            font-size: 32px;
+            margin-bottom: 24px;
+            display: block;
+        }
+
+        .card h3 {
+            margin-bottom: 12px;
+            font-size: 20px;
+        }
+
+        .card p {
+            color: var(--text-dim);
+            font-size: 15px;
+        }
+
+        /* Installation Section */
+        .install {
+            padding: 100px 24px;
+            background-color: #080C18;
+            text-align: center;
+        }
+
+        .terminal {
+            background-color: #000;
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 600px;
+            margin: 40px auto;
+            text-align: left;
+            font-family: 'Courier New', Courier, monospace;
+            border: 1px solid var(--cyan);
+            box-shadow: 0 20px 50px rgba(0, 210, 210, 0.1);
+            position: relative;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 210, 210, 0.1);
+            border: 1px solid var(--cyan);
+            color: var(--cyan);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .copy-btn:hover {
+            background: var(--cyan);
+            color: #000;
+        }
+
+        .terminal-header {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .red {
+            background: #FF5F56;
+        }
+
+        .yellow {
+            background: #FFBD2E;
+        }
+
+        .green {
+            background: #27C93F;
+        }
+
+        .terminal-content {
+            color: var(--cyan);
+            font-size: 14px;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 16px;
+            background: var(--cyan);
+            animation: blink 1s step-end infinite;
+            vertical-align: middle;
+        }
+
+        @keyframes blink {
+            50% {
+                opacity: 0;
+            }
+        }
+
+        footer {
+            padding: 40px 24px;
+            text-align: center;
+            border-top: 1px solid rgba(224, 224, 224, 0.05);
+            color: var(--text-dim);
+            font-size: 14px;
+        }
+
+        .cyan-text {
+            color: var(--cyan);
+            font-weight: 600;
+        }
+
+        /* Animation Classes */
+        [data-aos] {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+
+        [data-aos].is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+
+<body>
+
+    <section class="hero">
+        <div class="hero-logo">⬡</div>
+        <h1 class="hero-title">Affinity</h1>
+        <p class="hero-tagline">L'intelligence au service de votre système Ubuntu. Sécurité, Nettoyage et
+            Optimisation en un seul endroit.</p>
+        <div class="cta-group">
+            <button onclick="showDemo()" class="btn btn-primary">Essayer la Démo</button>
+            <a href="#install" class="btn btn-outline">Installer</a>
+            <a href="https://github.com/l-vs/Affinity" class="btn btn-outline">
+                <svg viewBox="0 0 24 24">
+                    <path
+                        d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                </svg>
+            </a>
+        </div>
+    </section>
+
+    <section class="demo-section" id="demo">
+        <div class="section-header" data-aos>
+            <h2>Découvrez l'Interface</h2>
+            <p style="color: var(--text-dim)">Une démo interactive directement dans votre navigateur.</p>
+        </div>
+        <div class="demo-window" data-aos>
+            <iframe src="demo.html" title="Affinity Live Demo"></iframe>
+        </div>
+    </section>
+
+    <section class="features" id="features">
+        <div class="section-header" data-aos>
+            <h2>La puissance entre vos mains</h2>
+            <p style="color: var(--text-dim)">Une suite d'outils professionnels pour Ubuntu.</p>
+        </div>
+
+        <div class="grid">
+            <div class="card" data-aos>
+                <span class="card-icon">🛡️</span>
+                <h3>Sécurité Avancée</h3>
+                <p>Protection temps réel, analyse heuristique 50+ règles, et scan USB automatique.</p>
+            </div>
+
+            <div class="card" data-aos>
+                <span class="card-icon">🧹</span>
+                <h3>Nettoyage Profond</h3>
+                <p>15 catégories de nettoyage. Navigateurs, logs, cache APT et paquets orphelins.</p>
+            </div>
+
+            <div class="card" data-aos>
+                <span class="card-icon">🧠</span>
+                <h3>Conseiller IA</h3>
+                <p>Une IA intégrée pour diagnostiquer votre matériel et vous conseiller sur l'optimisation.</p>
+            </div>
+
+            <div class="card" data-aos>
+                <span class="card-icon">⚡</span>
+                <h3>Modes Système</h3>
+                <p>Basculez entre les profils Performance, Équilibré et Économie en un clic.</p>
+            </div>
+
+            <div class="card" data-aos>
+                <span class="card-icon">📅</span>
+                <h3>Automatisations</h3>
+                <p>Planifiez vos tâches de maintenance pour garder votre système sain en permanence.</p>
+            </div>
+
+            <div class="card" data-aos>
+                <span class="card-icon">🖌️</span>
+                <h3>Personnalisation</h3>
+                <p>Modifiez en profondeur l'apparence de votre environnement : dock, thèmes et polices.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="install" id="install">
+        <div class="section-header" data-aos>
+            <h2>Installation Rapide</h2>
+            <p style="color: var(--text-dim)">Copiez cette commande dans votre terminal.</p>
+        </div>
+
+        <div class="terminal" data-aos>
+            <button class="copy-btn" id="copyBtn">Copier</button>
+            <div class="terminal-header">
+                <div class="dot red"></div>
+                <div class="dot yellow"></div>
+                <div class="dot green"></div>
+            </div>
+            <div class="terminal-content">
+                <span style="color: #666;"># Cloner et installer Affinity</span><br>
+                git clone https://github.com/l-vs/Affinity.git<br>
+                cd Affinity<br>
+                bash install.sh<span class="cursor"></span>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>Projet Open-Source · Fait avec 🔥 par <span class="cyan-text">l-vs</span></p>
+        <p style="margin-top: 10px; font-size: 11px;">Affinity n'est pas affilié à Canonical ou Ubuntu.</p>
+    </footer>
+
+    <script>
+        // AOS (Animate on Scroll)
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('[data-aos]').forEach(el => observer.observe(el));
+
+        // Demo reveal
+        function showDemo() {
+            const demo = document.getElementById('demo');
+            demo.style.display = 'block';
+            setTimeout(() => {
+                demo.scrollIntoView({ behavior: 'smooth' });
+                // Re-trigger AOS for the newly visible section
+                document.querySelectorAll('#demo [data-aos]').forEach(el => observer.observe(el));
+            }, 50);
+        }
+
+        // Copy functionality
+        document.getElementById('copyBtn').addEventListener('click', () => {
+            const textToCopy = 'git clone https://github.com/l-vs/Affinity.git && cd Affinity && bash install.sh';
+
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                const btn = document.getElementById('copyBtn');
+                btn.innerText = 'Copié !';
+                btn.style.background = 'var(--cyan)';
+                btn.style.color = '#001F2E';
+                setTimeout(() => {
+                    btn.innerText = 'Copier';
+                    btn.style.background = 'rgba(0, 210, 210, 0.1)';
+                    btn.style.color = 'var(--cyan)';
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+
+</html>
