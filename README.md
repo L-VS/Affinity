@@ -2,10 +2,9 @@
 
 **Affinity** is an intelligent, high-performance system companion designed specifically for **Ubuntu (GNOME)**. It combines advanced security heuristics, deep system cleaning, and hardware optimization into a single, premium interface powered by artificial intelligence.
 
-![Affinity Header](https://raw.githubusercontent.com/l-vs/Affinity/main/assets/header.png) *(Note: Placeholder link for GitHub)*
+ *( Note: https://l-vs.github.io/Affinity/ )*
 
 ---
-
 ## ✨ Key Features
 
 ### 🧠 Intelligent Core
