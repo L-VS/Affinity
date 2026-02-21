@@ -62,4 +62,4 @@ Affinity is built with **CustomTkinter**, featuring a bespoke dark theme (`#0A0E
 Distribué sous la licence **MIT**. Voir `LICENSE` pour plus d'informations.
 
 ---
-*Created with ❤️ by **l-vs***
+*Created with 🔥 by **l-vs***
