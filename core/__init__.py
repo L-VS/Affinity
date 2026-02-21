@@ -1,0 +1,1 @@
+"""Affinity — Module core."""
