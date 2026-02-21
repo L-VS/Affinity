@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Affinity — Votre Compagnon Système Intelligent</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
     <style>
         :root {
             --cyan: #00D2D2;
@@ -31,7 +33,9 @@
             line-height: 1.6;
         }
 
-        h1, h2, h3 {
+        h1,
+        h2,
+        h3 {
             font-family: 'Syne', sans-serif;
             font-weight: 800;
             text-transform: uppercase;
@@ -59,8 +63,15 @@
         }
 
         @keyframes float {
-            0%, 100% { transform: translateY(0) scale(1.0); }
-            50% { transform: translateY(-20px) scale(1.05); }
+
+            0%,
+            100% {
+                transform: translateY(0) scale(1.0);
+            }
+
+            50% {
+                transform: translateY(-20px) scale(1.05);
+            }
         }
 
         .hero-title {
@@ -68,6 +79,7 @@
             margin-bottom: 10px;
             background: linear-gradient(90deg, #FFFFFF, var(--cyan));
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
@@ -177,6 +189,27 @@
             font-family: 'Courier New', Courier, monospace;
             border: 1px solid var(--cyan);
             box-shadow: 0 20px 50px rgba(0, 210, 210, 0.1);
+            position: relative;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 210, 210, 0.1);
+            border: 1px solid var(--cyan);
+            color: var(--cyan);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .copy-btn:hover {
+            background: var(--cyan);
+            color: #000;
         }
 
         .terminal-header {
@@ -185,15 +218,43 @@
             margin-bottom: 16px;
         }
 
-        .dot { width: 10px; height: 10px; border-radius: 50%; }
-        .red { background: #FF5F56; }
-        .yellow { background: #FFBD2E; }
-        .green { background: #27C93F; }
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
 
-        .terminal-content { color: var(--cyan); font-size: 14px; }
-        .cursor { display: inline-block; width: 8px; height: 16px; background: var(--cyan); animation: blink 1s step-end infinite; vertical-align: middle; }
+        .red {
+            background: #FF5F56;
+        }
 
-        @keyframes blink { 50% { opacity: 0; } }
+        .yellow {
+            background: #FFBD2E;
+        }
+
+        .green {
+            background: #27C93F;
+        }
+
+        .terminal-content {
+            color: var(--cyan);
+            font-size: 14px;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 16px;
+            background: var(--cyan);
+            animation: blink 1s step-end infinite;
+            vertical-align: middle;
+        }
+
+        @keyframes blink {
+            50% {
+                opacity: 0;
+            }
+        }
 
         footer {
             padding: 40px 24px;
@@ -203,7 +264,10 @@
             font-size: 14px;
         }
 
-        .cyan-text { color: var(--cyan); font-weight: 600; }
+        .cyan-text {
+            color: var(--cyan);
+            font-weight: 600;
+        }
 
         /* Animation */
         [data-aos] {
@@ -218,12 +282,14 @@
         }
     </style>
 </head>
+
 <body>
 
     <section class="hero">
         <div class="hero-logo">⬡</div>
         <h1 class="hero-title">Affinity</h1>
-        <p class="hero-tagline">L'intelligence artificielle au service de votre système Ubuntu. Sécurité, Nettoyage et Optimisation en un seul endroit.</p>
+        <p class="hero-tagline">L'intelligence artificielle au service de votre système Ubuntu. Sécurité, Nettoyage et
+            Optimisation en un seul endroit.</p>
         <div class="cta-group">
             <a href="#install" class="btn btn-primary">Installer gratuitement</a>
             <a href="https://github.com/l-vs/Affinity" class="btn btn-outline">Voir sur GitHub</a>
@@ -235,38 +301,43 @@
             <h2>La puissance entre vos mains</h2>
             <p style="color: var(--text-dim)">Une suite d'outils professionnels pour Ubuntu.</p>
         </div>
-        
+
         <div class="grid">
             <div class="card" data-aos>
                 <span class="card-icon">🛡️</span>
                 <h3>Sécurité Avancée</h3>
-                <p>Protection temps réel, analyse heuristique 50+ règles, et scan USB automatique. Le niveau Kaspersky sur Linux.</p>
+                <p>Protection temps réel, analyse heuristique 50+ règles, et scan USB automatique. Le niveau Kaspersky
+                    sur Linux.</p>
             </div>
-            
+
             <div class="card" data-aos>
                 <span class="card-icon">🧹</span>
                 <h3>Nettoyage Profond</h3>
-                <p>15 catégories de nettoyage. Navigateurs, logs, cache APT et paquets orphelins. Libérez des gigaoctets en un clic.</p>
+                <p>15 catégories de nettoyage. Navigateurs, logs, cache APT et paquets orphelins. Libérez des gigaoctets
+                    en un clic.</p>
             </div>
-            
+
             <div class="card" data-aos>
                 <span class="card-icon">🧠</span>
                 <h3>Conseiller IA</h3>
-                <p>Une IA intégrée pour diagnostiquer votre matériel et vous conseiller sur l'optimisation de votre flux de travail.</p>
+                <p>Une IA intégrée pour diagnostiquer votre matériel et vous conseiller sur l'optimisation de votre flux
+                    de travail.</p>
             </div>
-            
+
             <div class="card" data-aos>
                 <span class="card-icon">⚡</span>
                 <h3>Modes Système</h3>
-                <p>Basculez entre les profils Performance, Équilibré et Économie pour maximiser votre productivité ou votre batterie.</p>
+                <p>Basculez entre les profils Performance, Équilibré et Économie pour maximiser votre productivité ou
+                    votre batterie.</p>
             </div>
-            
+
             <div class="card" data-aos>
                 <span class="card-icon">📅</span>
                 <h3>Automatisations</h3>
-                <p>Planifiez vos tâches de maintenance. Affinity s'occupe de garder votre système propre et sain pendant que vous travaillez.</p>
+                <p>Planifiez vos tâches de maintenance. Affinity s'occupe de garder votre système propre et sain pendant
+                    que vous travaillez.</p>
             </div>
-            
+
             <div class="card" data-aos>
                 <span class="card-icon">🖌️</span>
                 <h3>Personnalisation</h3>
@@ -282,12 +353,13 @@
         </div>
 
         <div class="terminal" data-aos>
+            <button class="copy-btn" id="copyBtn">Copier</button>
             <div class="terminal-header">
                 <div class="dot red"></div>
                 <div class="dot yellow"></div>
                 <div class="dot green"></div>
             </div>
-            <div class="terminal-content">
+            <div class="terminal-content" id="terminalSource">
                 <span style="color: #666;"># Cloner et installer Affinity</span><br>
                 git clone https://github.com/l-vs/Affinity.git<br>
                 cd Affinity<br>
@@ -297,12 +369,12 @@
     </section>
 
     <footer>
-        <p>Projet Open-Source · Fait avec ❤️ par <span class="cyan-text">l-vs</span></p>
+        <p>Projet Open-Source · Fait avec 🔥 par <span class="cyan-text">l-vs</span></p>
         <p style="margin-top: 10px; font-size: 11px;">Affinity n'est pas affilié à Canonical ou Ubuntu.</p>
     </footer>
 
     <script>
-        // Simple Intersection Observer for AOS (Animate on Scroll)
+        // AOS
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -312,6 +384,29 @@
         }, { threshold: 0.1 });
 
         document.querySelectorAll('[data-aos]').forEach(el => observer.observe(el));
+
+        // Copy functionality
+        document.getElementById('copyBtn').addEventListener('click', () => {
+            const lines = [
+                'git clone https://github.com/l-vs/Affinity.git',
+                'cd Affinity',
+                'bash install.sh'
+            ];
+            const textToCopy = lines.join('\n');
+
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                const btn = document.getElementById('copyBtn');
+                btn.innerText = 'Copié !';
+                btn.style.background = 'var(--cyan)';
+                btn.style.color = '#000';
+                setTimeout(() => {
+                    btn.innerText = 'Copier';
+                    btn.style.background = 'rgba(0, 210, 210, 0.1)';
+                    btn.style.color = 'var(--cyan)';
+                }, 2000);
+            });
+        });
     </script>
 </body>
+
 </html>
