@@ -147,6 +147,41 @@
             /* Hidden by default */
         }
 
+        /* Floating Action Button */
+        .fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: var(--cyan);
+            color: #001F2E;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0, 210, 210, 0.4);
+            z-index: 1000;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: none;
+            outline: none;
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+        }
+
+        .fab svg {
+            width: 24px;
+            height: 24px;
+            transition: transform 0.4s ease;
+        }
+
+        .fab.up svg {
+            transform: rotate(180deg);
+        }
+
         .demo-window {
             max-width: 1000px;
             margin: 40px auto;
@@ -332,7 +367,7 @@
         <p class="hero-tagline">L'intelligence au service de votre système Ubuntu. Sécurité, Nettoyage et
             Optimisation en un seul endroit.</p>
         <div class="cta-group">
-            <button onclick="showDemo()" class="btn btn-primary">Essayer la Démo</button>
+            <button onclick="toggleDemo()" class="btn btn-primary" id="demoBtn">Essayer la Démo</button>
             <a href="#install" class="btn btn-outline">Installer</a>
             <a href="https://github.com/l-vs/Affinity" class="btn btn-outline">
                 <svg viewBox="0 0 24 24">
@@ -425,6 +460,13 @@
         <p style="margin-top: 10px; font-size: 11px;">Affinity n'est pas affilié à Canonical ou Ubuntu.</p>
     </footer>
 
+    <button class="fab" id="scrollFab" onclick="smartScroll()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
+            stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+    </button>
+
     <script>
         // AOS (Animate on Scroll)
         const observer = new IntersectionObserver((entries) => {
@@ -437,15 +479,42 @@
 
         document.querySelectorAll('[data-aos]').forEach(el => observer.observe(el));
 
-        // Demo reveal
-        function showDemo() {
+        // Demo Toggle
+        function toggleDemo() {
             const demo = document.getElementById('demo');
-            demo.style.display = 'block';
-            setTimeout(() => {
-                demo.scrollIntoView({ behavior: 'smooth' });
-                // Re-trigger AOS for the newly visible section
-                document.querySelectorAll('#demo [data-aos]').forEach(el => observer.observe(el));
-            }, 50);
+            const btn = document.getElementById('demoBtn');
+            const isHidden = window.getComputedStyle(demo).display === 'none';
+
+            if (isHidden) {
+                demo.style.display = 'block';
+                btn.innerText = 'Masquer la Démo';
+                setTimeout(() => {
+                    demo.scrollIntoView({ behavior: 'smooth' });
+                    document.querySelectorAll('#demo [data-aos]').forEach(el => observer.observe(el));
+                }, 50);
+            } else {
+                demo.style.display = 'none';
+                btn.innerText = 'Essayer la Démo';
+            }
+        }
+
+        // Smart Scroll FAB
+        const fab = document.getElementById('scrollFab');
+        window.addEventListener('scroll', () => {
+            const scrollPercent = (window.scrollY + window.innerHeight) / document.documentElement.scrollHeight;
+            if (scrollPercent > 0.95) {
+                fab.classList.add('up');
+            } else {
+                fab.classList.remove('up');
+            }
+        });
+
+        function smartScroll() {
+            if (fab.classList.contains('up')) {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+            }
         }
 
         // Copy functionality
